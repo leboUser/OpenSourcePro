@@ -25,12 +25,30 @@
         </plugins>
     </build>
 
-    <dependencies>
+<dependencies>
+    <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
     <dependency>
-        <groupId>com.codeborne</groupId>
-        <artifactId>selenide</artifactId>
-        <version>5.13.1</version>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>4.0.0-alpha-6</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-support -->
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-support</artifactId>
+        <version>4.0.0-alpha-6</version>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+    <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>4.2.0</version>
+    </dependency>
+
+
     <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
@@ -51,6 +69,7 @@
         <artifactId>jackson-databind</artifactId>
         <version>2.11.2</version>
     </dependency>
+
         <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-selenide -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
@@ -62,9 +81,6 @@
             <artifactId>extentreports</artifactId>
             <version>4.0.9</version>
         </dependency>
-
-
-
     </dependencies>
 
 

@@ -1,4 +1,4 @@
-package BankOP;
+package Model;
 
 public class Customer {
     private String id;

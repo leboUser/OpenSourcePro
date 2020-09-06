@@ -1,7 +1,6 @@
-package tools;
+package Controller;
 
 import okhttp3.*;
-import org.openqa.selenium.json.Json;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

@@ -1,4 +1,4 @@
-package tools;
+package Controller;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
@@ -7,20 +7,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class Report extends  TestListener{
+abstract class Report  {
 
     private static final String formatStr = "%n%-24s %-20s %-60s %-25s";
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:ms");
     public ExtentHtmlReporter htmlReporter;
     public ExtentReports report =  new ExtentReports();
     public String reportDirctory;
+    public String testcaseFolder =null;
 
 
-    Report(String testname) {
-        super();
-        htmlReporter =  new ExtentHtmlReporter( setReportDirectory(testname) +"extend.html");
-        // htmlReporter.config().setAutoCreateRelativePathMedia(true);
+    Report(String testcaseFolder) {
+        ReportTestate(testcaseFolder);
+       // htmlReporter.config().setAutoCreateRelativePathMedia(true);
         report.attachReporter(this.htmlReporter);
+    }
+
+    public void ReportTestate(String testcaseFolder){
+        this.testcaseFolder=testcaseFolder;
+        htmlReporter =  new ExtentHtmlReporter( setReportDirectory(testcaseFolder) +"extend.html");
     }
 
     private static String getCurTime(){
@@ -32,9 +37,14 @@ public class Report extends  TestListener{
         return reportDirctory;
     }
 
-    public String setReportDirectory(String testname) {
-        return reportDirctory = System.getProperty("user.dir") + "\\Reports\\" +  testname+ "\\" + getCurTime()+"\\";
+    public String setReportDirectory(String testcaseFolder) {
+        return reportDirctory = System.getProperty("user.dir") + "\\Reports\\" +  testcaseFolder+ "\\" + getCurTime()+"\\";
     }
+
+    public void flush(){
+        report.flush();
+    }
+
 
 
 

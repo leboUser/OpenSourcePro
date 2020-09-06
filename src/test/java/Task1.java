@@ -9,15 +9,15 @@ import java.io.IOException;
 
 
 
-public class Task1 extends Base {
-
+public class Task1  {
+/*
     private final String userPath = "https://jsonplaceholder.typicode.com/";
 
     @BeforeEach
     void beforeTestRun(TestInfo testInfo){
         String TestSuite = testInfo.getTestClass().get().getCanonicalName();
         String testName = testInfo.getTestMethod().get().getName();
-        reporter.testsuite(testName,TestSuite);
+        //reporter.testsuite(testName,TestSuite);
     }
 
     @AfterEach
@@ -68,5 +68,5 @@ public class Task1 extends Base {
         reporter.testcomplete(APItool.getResponseBody().string(), APItool.ResponseCode().equals("201") || APItool.ResponseCode().equals("200") );
     }
 
-
+*/
 }

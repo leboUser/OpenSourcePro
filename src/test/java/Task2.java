@@ -1,26 +1,27 @@
-import BankOP.Customer;
-import SelenideConf.SelenideConf;
+import Controller.Selinum;
+import Controller.TestListener;
+import Model.BankOP;
+import Model.Customer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.codeborne.selenide.junit5.ScreenShooterExtension;
-import com.codeborne.selenide.logevents.SelenideLogger;
-import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.*;
+import java.util.HashMap;
 
-import static BankOP.BankOP.*;
+import static Model.BankOP.*;
 import static com.codeborne.selenide.Selenide.*;
 
 @ExtendWith({ScreenShooterExtension.class})
-public class Task2 extends Base {
+public class Task2  {
 
     @BeforeEach
     void beforeTestRun(TestInfo testInfo){
         String TestSuite = testInfo.getTestClass().get().getCanonicalName();
         String testName = testInfo.getTestMethod().get().getName();
-        reporter.testsuite(testName,TestSuite);
-        SelenideLogger.addListener(testName, new AllureSelenide().screenshots(true));
-        SelenideConf.selenideConf(getReportDirecty());
+       // reporter.testsuite(testName,TestSuite);
+       // SelenideLogger.addListener(testName, new AllureSelenide().screenshots(true));
+        //SelenideConf.selenideConf(getReportDirecty());
 
     }
 
@@ -32,22 +33,28 @@ public class Task2 extends Base {
 
     @AfterAll
    static void afterAll(){
-        closeWindow();
-        closeWebDriver();
-        reporter.flush();
     }
 
     @Test
     @DisplayName("Test 1")
-    void Test1()  {
-        open("http://www.way2automation.com/angularjs-protractor/banking/#/login");
-        customerLogin("1");
-        DepsitAmount("1500");
-        reporter.TestcompleteWithScreenShot("Step completed");
-        OffLogin();
+    void Test1(TestInfo testInfo) throws Exception {
+        Selinum selinum = new Selinum("chrome",true);
+        TestListener report = new TestListener(testInfo.getTestClass().get().getName(),testInfo.getTestMethod().get().getName());
+        selinum.navigation("http://www.way2automation.com/angularjs-protractor/banking/#/login");
+        BankOP bankOP = new BankOP();
+
+        //Test Cases steps
+        report.testStepPassOrFail(bankOP.customerLogin(1,selinum.driver()), "Able to login?");
+        report.TestWithScreenShot(bankOP.depsitAmount("1500",selinum.driver()),selinum,"Able to deposit amount?");
+
+        //close Logoff
+        bankOP.OffLogin(selinum.driver());
+        //flush report
+        report.flush();
+        selinum.shutdown();
     }
 
-    @Test
+   /* @Test
     @DisplayName("Test 2")
     void Test2()  {
         open("http://www.way2automation.com/angularjs-protractor/banking/#/login");
@@ -63,7 +70,7 @@ public class Task2 extends Base {
         @DisplayName("Test 3")
         void Test3()  {
             open("http://www.way2automation.com/angularjs-protractor/banking/#/login");
-            customerLogin("1");
+            customerLogin(1);
             DepsitAmount("1500");
             transactions("1500");
             withDraw("1500");
@@ -86,7 +93,7 @@ public class Task2 extends Base {
         reporter.TestcompleteWithScreenShot("Step completed");
         OffLogin();
 
-    }
+    }*/
 
 
 
