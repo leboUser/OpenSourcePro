@@ -19,10 +19,6 @@ public class Task2  {
     void beforeTestRun(TestInfo testInfo){
         String TestSuite = testInfo.getTestClass().get().getCanonicalName();
         String testName = testInfo.getTestMethod().get().getName();
-       // reporter.testsuite(testName,TestSuite);
-       // SelenideLogger.addListener(testName, new AllureSelenide().screenshots(true));
-        //SelenideConf.selenideConf(getReportDirecty());
-
     }
 
 
@@ -38,62 +34,69 @@ public class Task2  {
     @Test
     @DisplayName("Test 1")
     void Test1(TestInfo testInfo) throws Exception {
-        Selinum selinum = new Selinum("chrome",true);
+        BankOP bankOP = new BankOP("chrome",true);
         TestListener report = new TestListener(testInfo.getTestClass().get().getName(),testInfo.getTestMethod().get().getName());
-        selinum.navigation("http://www.way2automation.com/angularjs-protractor/banking/#/login");
-        BankOP bankOP = new BankOP();
+        bankOP.navigation("http://www.way2automation.com/angularjs-protractor/banking/#/login");
+
 
         //Test Cases steps
-        report.testStepPassOrFail(bankOP.customerLogin(1,selinum.driver()), "Able to login?");
-        report.TestWithScreenShot(bankOP.depsitAmount("1500",selinum.driver()),selinum,"Able to deposit amount?");
+        report.testStepPassOrFail(bankOP.customerLogin(1), "Able to login?");
+        report.TestWithScreenShot(bankOP.depsitAmount("1500"),bankOP,"Able to deposit amount?");
 
         //close Logoff
-        bankOP.OffLogin(selinum.driver());
+        bankOP.OffLogin();
         //flush report
         report.flush();
-        selinum.shutdown();
+        bankOP.shutdown();
     }
 
-   /* @Test
+    @Test
     @DisplayName("Test 2")
-    void Test2()  {
-        open("http://www.way2automation.com/angularjs-protractor/banking/#/login");
+    void Test2(TestInfo testInfo) throws Exception {
+        TestListener report = new TestListener(testInfo.getTestClass().get().getName(),testInfo.getTestMethod().get().getName());
+        BankOP bankOP = new BankOP("chrome",true);
+        bankOP.navigation("http://www.way2automation.com/angularjs-protractor/banking/#/login");
+
        for(int x=1;x<5;x++){
-        customerLogin(String.valueOf(x));
-        DepsitAmount("1500");
-        reporter.TestcompleteWithScreenShot("Step completed "+x);
-        OffLogin();
+           bankOP.customerLogin(x);
+           report.TestWithScreenShot(bankOP.depsitAmount("1500"),bankOP,"Step completed "+x);
+           bankOP.OffLogin();
        }
+       bankOP.shutdown();
+       report.flush();
     }
 
         @Test
         @DisplayName("Test 3")
-        void Test3()  {
-            open("http://www.way2automation.com/angularjs-protractor/banking/#/login");
-            customerLogin(1);
-            DepsitAmount("1500");
-            transactions("1500");
-            withDraw("1500");
-            reporter.TestcompleteWithScreenShot("Step completed");
-            OffLogin();
-
+        void Test3(TestInfo testInfo)throws Exception  {
+            TestListener report = new TestListener(testInfo.getTestClass().get().getName(),testInfo.getTestMethod().get().getName());
+            BankOP bankOP = new BankOP("chrome",true);
+            bankOP.navigation("http://www.way2automation.com/angularjs-protractor/banking/#/login");
+            bankOP.customerLogin(1);
+            bankOP.depsitAmount("1500");
+            bankOP.transactions("1500");
+            report.TestWithScreenShot(bankOP.withDraw("1500"),bankOP,"Step completed");
+            bankOP.OffLogin();
         }
+
     @Test
     @DisplayName("Test 4")
-    void Test4() throws IOException {
-        open("http://www.way2automation.com/angularjs-protractor/banking/#/login");
+    void Test4(TestInfo testInfo) throws Exception {
+        TestListener report = new TestListener(testInfo.getTestClass().get().getName(),testInfo.getTestMethod().get().getName());
+        BankOP bankOP = new BankOP("chrome",true);
+        bankOP.navigation("http://www.way2automation.com/angularjs-protractor/banking/#/login");
         ObjectMapper mapper = new ObjectMapper();
         BufferedReader location = new BufferedReader(
                 new FileReader("src/main/resources/customer.json"));
         Customer customerObj = mapper.readValue(location, Customer.class);
-        customerLogin(customerObj.getID());
-        DepsitAmount(customerObj.getDeposited());
-        transactions(customerObj.getDeposited());
-        withDraw(customerObj.getWithdrawn());
-        reporter.TestcompleteWithScreenShot("Step completed");
-        OffLogin();
+        bankOP.customerLogin(Integer.parseInt(customerObj.getID()));
+        bankOP.depsitAmount(customerObj.getDeposited());
+        bankOP.transactions(customerObj.getDeposited());
 
-    }*/
+        report.TestWithScreenShot(bankOP.withDraw(customerObj.getWithdrawn()),bankOP,"Step completed");
+        bankOP.OffLogin();
+
+    }
 
 
 

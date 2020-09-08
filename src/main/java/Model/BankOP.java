@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver;
 
 import java.util.HashMap;
 
-public class BankOP {
+public class BankOP extends Selinum {
 
      String  customerlogin ="//button[text()='Customer Login']";
      String Offlogin = "//button[text()='Logout']";
@@ -28,50 +28,48 @@ public class BankOP {
      String home="//button[text()='Home']";
      String back ="//button[contains(text(),'Back')]";
 
-    public Boolean customerLogin(int user, WebDriver driver){
-        Selinum selinum = new Selinum();
-        selinum.Webdriver(driver);
-        selinum.clickElement(By.xpath(customerlogin));
-        selinum.selectElementByIndex(By.xpath(yourNamedropDown),user);
-        selinum.clickElement(By.xpath(loginCustomer));
-        return selinum.validateElementText(By.xpath(welcomeText),"Welcome");
+
+     public BankOP(String broswer, boolean windowsize) throws Exception {
+         super(broswer,windowsize);
+     }
+
+    public Boolean customerLogin(int user){
+        clickElement(By.xpath(customerlogin));
+        selectElementByIndex(By.xpath(yourNamedropDown),user);
+        clickElement(By.xpath(loginCustomer));
+        return validateElementText(By.xpath(welcomeText),"Welcome");
     }
 
-    public  Boolean OffLogin( WebDriver driver){
-        Selinum selinum = new Selinum();
-        selinum.Webdriver(driver);
-        selinum.clickElement(By.xpath(Offlogin));
-        selinum.clickElement(By.xpath(home));
-        return (selinum.waitElement(By.xpath(customerlogin)));
+    public  Boolean OffLogin( ){
+
+        clickElement(By.xpath(Offlogin));
+        clickElement(By.xpath(home));
+        return (waitElement(By.xpath(customerlogin)));
     }
 
-    public Boolean depsitAmount(String amount, WebDriver driver){
-        Selinum selinum = new Selinum();
-        selinum.Webdriver(driver);
-        selinum.clickElement(By.xpath(despsit));
-        selinum.enterText(By.xpath(enterAmount),amount);
-        selinum.clickElement(By.xpath(buttonDeposit));
-        return selinum.waitElement(By.xpath(textDepositSuccessful));
+    public Boolean depsitAmount(String amount){
+        clickElement(By.xpath(despsit));
+        enterText(By.xpath(enterAmount),amount);
+        clickElement(By.xpath(buttonDeposit));
+        return waitElement(By.xpath(textDepositSuccessful));
     }
 
-    public  Boolean transactions(String amount, WebDriver driver){
-        Selinum selinum = new Selinum();
-        selinum.Webdriver(driver);
-        selinum.clickElement(By.xpath(Transaction));
-        selinum.clickElement(By.xpath(dateTimElement));
-        selinum.GetlistElement(By.xpath(TransactionTable),amount);
-        selinum.clickElement(By.xpath(back));
-        return  selinum.waitElement(By.xpath(welcomeText));
+    public  Boolean transactions(String amount){
+        clickElement(By.xpath(Transaction));
+        clickElement(By.xpath(dateTimElement));
+        GetlistElement(By.xpath(TransactionTable),amount);
+        clickElement(By.xpath(back));
+        return waitElement(By.xpath(welcomeText));
     }
 
-/*
-    public  SelenideElement withDraw(String amount){
-        $(new By.ByXPath(withdraw)).click();
-        $(new By.ByXPath(enterAmount)).sendKeys(amount);
-        $(new By.ByXPath(buttonWithdraw)).click();
-        return $(new By.ByXPath(textTransactionSuccessful)).shouldHave(text("Transaction successful"));
 
-    }*/
+    public  Boolean withDraw(String amount){
+        clickElement(By.xpath(withdraw));
+        enterText(By.xpath(enterAmount),amount);
+        clickElement(By.xpath(buttonWithdraw));
+        return validateElementText( By.xpath(textTransactionSuccessful),"Transaction successful");
+
+    }
 
 
 }

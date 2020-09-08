@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-public class Selinum   {
+ abstract public class Selinum   {
 
     private WebDriver driver;
     private int screenCounter = 0;
