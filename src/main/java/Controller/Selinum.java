@@ -4,7 +4,10 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Action;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -15,44 +18,40 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
- abstract public class Selinum   {
+ abstract public class Selinum  extends TestListener  {
 
     private WebDriver driver;
-    private int screenCounter = 0;
-
-    public Selinum(String browsertype,boolean windowsize) throws Exception {
-        switch (browsertype.toUpperCase()){
-            case "CHROME":
-                WebDriverManager.chromedriver().setup();
-                this.driver =new ChromeDriver();
-                if(windowsize){this.driver.manage().window().maximize();}
-                break;
-            case "FIREFOX":
-                WebDriverManager.firefoxdriver().setup();
-                this.driver =new FirefoxDriver();
-                if(windowsize){this.driver.manage().window().maximize();}
-                break;
-            default:
-                throw new Exception("unable to select browser") ;
-
-        }
-    }
-
-   public  Selinum(){
-    }
 
 
-    public boolean navigation(String url){
-        try {
-
+    public Selinum(String browsersType,boolean windowSize,String url,String testSuite,String testcase) throws Exception {
+        super(testSuite,testcase);
+        if (browsersType.toUpperCase().contentEquals("CHROME")) {
+            WebDriverManager.chromedriver().setup();
+            this.driver = new ChromeDriver();
+            if (windowSize) {
+                this.driver.manage().window().maximize();
+            }
             this.driver.navigate().to(url);
-
-            return true;
-
-        }catch (Exception e){
-            return false;
+        }else if(browsersType.toUpperCase().contentEquals("FIREFOX")) {
+            WebDriverManager.firefoxdriver().setup();
+            this.driver = new FirefoxDriver();
+            if (windowSize) {
+                this.driver.manage().window().maximize();
+            }
+            this.driver.navigate().to(url);
+        }else if(browsersType.toUpperCase().contentEquals("EDGE")) {
+            WebDriverManager.edgedriver().setup();
+            this.driver = new EdgeDriver();
+            if (windowSize) {
+                this.driver.manage().window().maximize();
+            }
+            this.driver.navigate().to(url);
+        }else {
+            throw new Exception("unable to select browser");
         }
+
     }
+
     public void Webdriver(WebDriver driver){
         this.driver = driver;
     }
@@ -61,163 +60,163 @@ import java.util.concurrent.TimeUnit;
     }
 
     //Interacting Element
-    public boolean waitElement(By element){
-        boolean found = false;
-        int counter = 0;
-
-        try {
-                        while(!found && counter < 30){
-
-                            WebDriverWait wait = new WebDriverWait(this.driver, 1);
-                            wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(element));
-                            found = true;
-                            counter ++;
+    private WebElement waitElement(By value){
+                    try {
                             pause(1000);
-                            if(found){
-                                return true;
-                            }
+                            WebDriverWait wait = new WebDriverWait(driver(), 1);
+                            wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(value));
+                            WebElement element = driver.findElement(value);
+
+                            moveElement(element );
+
+                            return element;
+
                         }
-
-
-            throw new Exception("unable to find Element "+element.toString()) ;
-        }
-        catch (Exception e){
-         e.printStackTrace( );
-            return false;
-            }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+            return this.driver.findElement(value);
     }
 
-    public boolean clickElement(By value){
+    private void moveElement(WebElement element){
+        Actions action = new Actions(driver());
+        action.moveToElement(element);
+        action.perform();
+    }
+
+
+    protected void clickElement(By value ,boolean screenshot,String step)  {
+
         try {
-            WebElement element ;
-            WebDriverWait wait = new WebDriverWait(this.driver, 1);
-            waitElement(value);
-            wait.until(ExpectedConditions.elementToBeClickable(value));
-            element = this.driver.findElement(value);
+            WebElement element;
+            element = waitElement(value);
             element.click();
 
-            return true;
+            if (screenshot) {
+                TestWithScreenShot(true, driver(), step);
+            } else {
+                testPassOrFail(step, true,driver());
+            }
         }catch (Exception e){
             e.getCause();
-            return false;
+            if (screenshot) {
+                TestWithScreenShot(false, driver(), e.getMessage());
+            } else {
+                testPassOrFail(e.getMessage() , false,driver());
+            }
         }
     }
 
-    public boolean selectElementByIndex(By value,int index){
+     protected void selectElementByIndex(By value,int index,boolean screenshot,String step){
         try {
 
-            waitElement(value);
-            WebDriverWait wait = new WebDriverWait(this.driver,1);
-            Select element ;
-
-                    wait.until(ExpectedConditions.elementToBeClickable(value));
-                    element = new Select(this.driver.findElement(value));
-                    element.selectByIndex(index);
-
-
-            return true;
+            Select element = new Select(waitElement(value));
+            element.selectByIndex(index);
+            if (screenshot) {
+                TestWithScreenShot(true, driver(), step);
+            } else {
+                testPassOrFail(step, true,driver());
+            }
 
         }catch (Exception e){
-            e.getCause();
-            return false;
+            if (screenshot) {
+                TestWithScreenShot(false, driver(), e.getMessage());
+            } else {
+                testPassOrFail(e.getMessage(), false,driver());
+            }
         }
     }
 
-    public boolean enterText(By value, String textToEnter){
+     protected void enterText(By value, String textToEnter,Boolean screenshot,String step)  {
         try {
-
-                    waitElement(value);
-                    WebDriverWait wait = new WebDriverWait(this.driver,1);
-                    WebElement element;
-                    wait.until(ExpectedConditions.elementToBeClickable(value));
-                    element = this.driver.findElement(value);
+                    WebElement element= waitElement(value);
                     element.sendKeys(textToEnter);
-
-            return true;
+                    if (screenshot) {
+                        TestWithScreenShot(true, driver(), step);
+                    } else {
+                        testPassOrFail(step, true,driver());
+                    }
 
         }catch (Exception e){
-            e.getCause();
-            return false;
+
+            if (screenshot) {
+                TestWithScreenShot(false, driver(), e.getMessage());
+            } else {
+                testPassOrFail(e.getMessage(), false,driver());
+            }
         }
     }
 
 
-    public boolean validateElementText(By value,String textToValidate){
+     protected void validateElementText(By value,String textToValidate,Boolean screenshot,String step) {
         try {
 
-            waitElement(value);
-            WebDriverWait wait = new WebDriverWait(this.driver,1);
-            WebElement element ;
-                    wait.until(ExpectedConditions.elementToBeClickable(value));
-                    element = this.driver.findElement(value);
 
-            return element.getText().equals(textToValidate);
+            WebElement element = waitElement(value);
+            if (screenshot) {
+                TestWithScreenShot(element.getText().equals(textToValidate), driver(), step);
+            } else {
+                testPassOrFail(step, element.getText().equals(textToValidate),driver());
+            }
+
+
 
         }catch (Exception e){
-            return false;
+            if (screenshot) {
+                TestWithScreenShot(false, driver(), e.toString());
+            } else {
+                testPassOrFail(e.getMessage(), false,driver());
+            }
         }
     }
 
-  public String getTextFromElement(By value){
+     protected String getTextFromElement(By value,boolean screenshot,String step) {
         try {
-            waitElement(value);
-            WebDriverWait wait = new WebDriverWait(this.driver, 1);
-            WebElement element;
-                    wait.until(ExpectedConditions.elementToBeClickable(value));
-                    element = this.driver.findElement(value);
+
+            WebElement element = waitElement(value);
            
             return element.getText();
 
         }catch (Exception e){
-            return "";
+            if (screenshot) {
+                TestWithScreenShot(false, driver(), e.getMessage());
+            } else {
+                testPassOrFail(e.getMessage(), false,driver());
+            }
+            return null;
         }
     }
 
-    public Boolean GetlistElement(By value, String appear){
+     protected void GetlistElement(By value, String appear,Boolean screenshot,String step) {
         boolean result =false;
         try{
 
             waitElement(value);
-            WebDriverWait wait = new WebDriverWait(this.driver,1);
-            List<WebElement> elements;
-                elements = this.driver.findElements(value);
+            List<WebElement> elements = this.driver.findElements(value);
             for (WebElement elm:elements) {
                if( elm.getText().equals(appear)){
                    result =true;
+                   if (screenshot) {
+                       TestWithScreenShot(result, driver(), step);
+                   } else {
+                       testPassOrFail(step, result,driver());
+                   }
                }
             }
         }catch(Exception e){
-            return false;
+            if (screenshot) {
+                TestWithScreenShot(false, driver(), e.getMessage());
+            } else {
+                testPassOrFail(e.getMessage(), false,driver());
+            }
         }
-        return result;
-    }
-
-    public String takeScreenshot(Boolean status, String getReportDirectory) throws IOException {
-        screenCounter++;
-        String imagePath =getReportDirectory;
-        String relativePath = "Screenshots\\";
-
-        new File(imagePath + relativePath).mkdirs();
-
-        relativePath=relativePath+screenCounter + "_";
-        if (status) {
-            relativePath=relativePath+"PASSED";
-        } else {
-            relativePath = relativePath+"FAILED";
-        }
-        relativePath=relativePath+".png";
-
-        imagePath=imagePath+relativePath;
-        File screenshotBase64 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshotBase64,new File(imagePath));
-
-        return imagePath;
-
     }
 
 
 
-    public void pause(int milliseconds){
+
+
+     protected void pause(int milliseconds){
         try{
             TimeUnit.MILLISECONDS.sleep(milliseconds);
         } catch (InterruptedException e){
@@ -225,7 +224,7 @@ import java.util.concurrent.TimeUnit;
         }
     }
 
-    public boolean shutdown(){
+     public boolean shutdown(){
         try {
             driver.close();
             driver.quit();

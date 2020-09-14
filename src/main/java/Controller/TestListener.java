@@ -2,8 +2,16 @@ package Controller;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.MediaEntityBuilder;
-import org.junit.jupiter.api.Assertions;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
+
+import java.io.File;
 import java.io.IOException;
+
+import static org.testng.Assert.assertTrue;
 
 
 public class TestListener extends Report  {
@@ -11,6 +19,7 @@ public class TestListener extends Report  {
     private ExtentTest test;
     private ExtentTest node;
     private String testCase;
+    private int screenCounter = 0;
 
 //nee fix
     public TestListener(String testCases,String testSuite) {
@@ -20,28 +29,35 @@ public class TestListener extends Report  {
     }
 
 
-    public void testPassOrFail(String reasonP_F,boolean result){
-
-        if(result){
-            this.test.pass(reasonP_F);
-            Assertions.assertTrue(true);
-        }else{
-            this.test.fail(reasonP_F);
-            Assertions.assertTrue(false);
+    public void testPassOrFail(String reasonP_F,boolean result,WebDriver driver)  {
+        try{
+            if (result) {
+                this.test.pass(reasonP_F);
+                Assert.assertTrue(true);
+            } else {
+                this.test.fail(reasonP_F);
+                Assert.fail(reasonP_F,new Throwable("Failed due to"+reasonP_F));
+            }
+        }catch(Exception e){
+            flush();
+            driver.close();
+            driver.quit();
         }
     }
 
-    public void TestWithScreenShot(boolean condition,Selinum selinum,String reasonP_F) {
+    public void TestWithScreenShot(boolean condition, WebDriver driver,String reasonP_F) {
         try {
             if(condition) {
-                test.pass(reasonP_F,MediaEntityBuilder.createScreenCaptureFromPath(selinum.takeScreenshot(condition,reportDirctory)).build());
-                Assertions.assertTrue(true);
+                test.pass(reasonP_F,MediaEntityBuilder.createScreenCaptureFromPath(takeScreenshot(condition,reportDirctory,driver)).build());
+                Assert.assertTrue(true);
             }else{
-                MediaEntityBuilder.createScreenCaptureFromPath(selinum.takeScreenshot(condition,reportDirctory)).build();
-                Assertions.assertTrue(false);
+                test.fail(reasonP_F,MediaEntityBuilder.createScreenCaptureFromPath(takeScreenshot(condition,reportDirctory,driver)).build());
+                Assert.fail(reasonP_F,new Exception("unable to "+reasonP_F));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (AssertionError | IOException e) {
+            flush();
+            driver.close();
+            driver.quit();
         }
     }
 
@@ -52,6 +68,29 @@ public class TestListener extends Report  {
         }else{
             test.fail(description);
         }
+    }
+
+    protected String takeScreenshot(Boolean status, String getReportDirectory, WebDriver driver) throws IOException {
+        screenCounter++;
+        String imagePath =getReportDirectory;
+        String relativePath = "Screenshots\\";
+
+        new File(imagePath + relativePath).mkdirs();
+
+        relativePath=relativePath+screenCounter + "_";
+        if (status) {
+            relativePath=relativePath+"PASSED";
+        } else {
+            relativePath = relativePath+"FAILED";
+        }
+        relativePath=relativePath+".png";
+
+        imagePath=imagePath+relativePath;
+        File screenshotBase64 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(screenshotBase64,new File(imagePath));
+
+        return imagePath;
+
     }
 
 }
