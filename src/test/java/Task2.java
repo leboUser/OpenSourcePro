@@ -1,8 +1,7 @@
-
 import Model.BankOP;
 import Model.Customer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import java.io.*;
 public class Task2  {
 
